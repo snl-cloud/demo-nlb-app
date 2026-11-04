@@ -9,7 +9,7 @@ Open `index.html` in a modern browser. No build step, account, API key, or serve
 ## Demo flows
 
 - **The Library That Disagrees With You:** cast an initial vote, read the opposing argument, record whether your view changed, then see illustrative poll results and add a local comment.
-- **Made for You:** browse reading categories, open sample articles, mark them read, and see session-only reading activity.
-- **Previous issues:** inspect illustrative result summaries for earlier polls.
+- **Made for You:** browse reading categories and sample articles in an NLB-style reader. Scroll to the end of an article to log it as read for the session.
+- **Previous issues:** horizontally browse static, non-clickable edition cards at the end of the poll-results screen.
 
-All copy, votes, comments, reading history, and activity counters are local demo state. They reset when the page is refreshed; there is no authentication, backend, live voting, or persistent storage.
+Votes, comments, and reading marks are local demo state. They reset when the page is refreshed; there is no authentication, backend, live voting, or persistent storage.
