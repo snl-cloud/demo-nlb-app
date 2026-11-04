@@ -433,7 +433,7 @@
       }
       .article-back { flex: 0 0 auto; border: 0; background: none; color: #1762d3; font-size: 14px; cursor: pointer; }
       .article-url { flex: 1; border-radius: 99px; padding: 7px 12px; background: #fff; color: #555; text-align: center; font-size: 13px; }
-      .article-progress { height: 4px; background: #ddd; }
+      .article-progress { position: sticky; top: 0; z-index: 6; height: 4px; background: #ddd; }
       .article-progress span { display: block; width: 0; height: 100%; background: var(--orange); transition: width .15s; }
       .article-content { width: min(660px, calc(100% - 48px)); margin: 0 auto; padding: 0 0 72px; }
       .article-meta { margin: 14px 0 18px; color: #777; font-size: 13px; }
@@ -614,6 +614,7 @@
           article: 0,
           readArticles: new Set(),
           readProgress: 0,
+          pendingThought: null,
           modal: null
         };
         const app = document.getElementById("app");
@@ -939,15 +940,12 @@
           card.style.setProperty("--ty", 0);
         });
 
-        function completeArticle() {
+        function recordArticleCompletion() {
           if (!state.readArticles.has(state.article)) {
             state.readArticles.add(state.article);
+            state.pendingThought = state.article;
           }
           state.readProgress = 100;
-          state.modal = "thought";
-          render();
-          const close = document.querySelector(".modal-close");
-          if (close) close.focus();
         }
 
         document.addEventListener("click", event => {
@@ -970,10 +968,11 @@
             state.readProgress = 0;
             setScreen("article");
           }
-          else if (action === "back-from-article") { state.modal = null; setScreen("category"); }
-          else if (action === "finish-article") {
-            if (state.readArticles.has(state.article)) { state.modal = null; setScreen("category"); }
-            else completeArticle();
+          else if (action === "back-from-article") {
+            state.modal = state.pendingThought === state.article ? "thought" : null;
+            if (state.modal === "thought") state.pendingThought = null;
+            setScreen("category");
+            if (state.modal === "thought") document.querySelector(".modal-close")?.focus();
           }
           else if (action === "profile") { showToast("Profile is a visual demo; sign-in is not connected."); }
           else if (action === "search") { showToast("Search is not connected in this demo."); }
@@ -1007,7 +1006,9 @@
         window.addEventListener("scroll", () => {
           if (state.screen !== "article") return;
           const range = document.documentElement.scrollHeight - window.innerHeight;
-          state.readProgress = range > 0 ? Math.min(100, Math.round(window.scrollY / range * 100)) : 100;
+          const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
+          state.readProgress = atBottom ? 100 : range > 0 ? Math.min(99, Math.round(window.scrollY / range * 100)) : 0;
+          if (atBottom) recordArticleCompletion();
           const bar = document.getElementById("article-progress");
           if (bar) bar.style.width = `${state.readProgress}%`;
           const pill = document.querySelector(".article-progress-pill");
@@ -1016,7 +1017,6 @@
             pill.disabled = state.readProgress < 100;
             pill.classList.toggle("done", state.readProgress >= 100);
           }
-          if (state.readProgress >= 98 && !state.readArticles.has(state.article)) completeArticle();
         }, { passive: true });
 
         document.addEventListener("keydown", event => {
