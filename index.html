@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111111">
+    <meta name="description" content="A small interactive demo inspired by the NLB mobile app mockup.">
+    <title>NLB — The Library That Disagrees With You</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+        --page: #111;
+        --surface: #1b1b1b;
+        --card: #292929;
+        --card-raised: #343434;
+        --ink: #f4f4f4;
+        --muted: #aaa;
+        --line: #454545;
+        --orange: #f4814f;
+        --teal: #34b3a6;
+        --coral: #e0605a;
+        --blue: #387bd1;
+        font-family: Outfit, "Segoe UI", system-ui, sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        background: var(--page);
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      button, textarea { font: inherit; }
+      button { color: inherit; }
+      button:focus-visible, textarea:focus-visible, a:focus-visible {
+        outline: 2px solid var(--orange);
+        outline-offset: 3px;
+      }
+      a { color: inherit; }
+
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 72px;
+        padding: 0 max(24px, calc((100vw - 1180px) / 2));
+        background: rgb(17 17 17 / 94%);
+        border-bottom: 1px solid #292929;
+        backdrop-filter: blur(14px);
+      }
+      .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+      .brand-mark {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border-radius: 12px;
+        background: var(--orange);
+        color: #17120f;
+        font-weight: 700;
+        letter-spacing: -.08em;
+      }
+      .brand-copy { display: grid; line-height: 1.1; }
+      .brand-copy b { font-size: 17px; }
+      .brand-copy small { margin-top: 4px; color: var(--muted); font-size: 11px; }
+      .header-actions { display: flex; align-items: center; gap: 12px; }
+      .header-link, .profile {
+        border: 0;
+        background: none;
+        cursor: pointer;
+      }
+      .header-link { padding: 8px; color: var(--muted); }
+      .profile {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 2px solid var(--orange);
+        border-radius: 50%;
+        background: #e8e0da;
+        color: #292929;
+        font-weight: 600;
+      }
+      main { min-height: calc(100vh - 72px); }
+      .page-wrap { width: min(1120px, calc(100% - 48px)); margin: 0 auto; padding: 30px 0 56px; }
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--orange);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+      }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { margin-bottom: 8px; font-size: clamp(28px, 4vw, 42px); line-height: 1.13; letter-spacing: -.035em; }
+      h2 { font-size: 24px; line-height: 1.2; letter-spacing: -.02em; }
+      h3 { font-size: 18px; line-height: 1.3; }
+      .lede { max-width: 680px; margin-bottom: 24px; color: var(--muted); }
+      .home-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, .9fr); gap: 20px; }
+      .home-main { min-width: 0; }
+      .notice {
+        position: relative;
+        display: flex;
+        gap: 14px;
+        margin: 26px 0;
+        padding: 16px 48px 16px 16px;
+        border: 1px solid #48433d;
+        border-radius: 14px;
+        background: #302c27;
+      }
+      .notice-icon {
+        display: grid;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border-radius: 50%;
+        background: #171717;
+        font-size: 18px;
+      }
+      .notice b { display: block; margin-bottom: 3px; }
+      .notice p { margin: 0; color: #d3d0cc; font-size: 13px; }
+      .notice-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font-size: 24px;
+        cursor: pointer;
+      }
+      .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 26px 0 12px; }
+      .section-heading h2 { margin: 0; font-size: 21px; }
+      .text-button { padding: 4px 0; border: 0; background: none; color: var(--orange); font-weight: 600; cursor: pointer; }
+      .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .feature-card {
+        position: relative;
+        display: flex;
+        min-height: 332px;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid #494949;
+        border-radius: 18px;
+        text-align: left;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease;
+      }
+      .feature-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px #0007; }
+      .feature-card:active { transform: scale(.99); }
+      .poll-card {
+        background:
+          linear-gradient(180deg, #0000 12%, #0009 100%),
+          radial-gradient(circle at 54% 39%, #ffffff2b 0 1px, transparent 2px),
+          linear-gradient(135deg, #2f8fd0, #6a58c8 53%, #e0605a);
+        border-color: #b66c58;
+      }
+      .mfy-card { background: linear-gradient(150deg, #a94d64, #512b63 70%, #271a39); }
+      .feature-topline { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        border-radius: 99px;
+        padding: 3px 10px;
+        background: var(--orange);
+        color: #21140e;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .live { display: inline-flex; align-items: center; gap: 6px; border-radius: 99px; padding: 3px 9px; background: #10101099; font-size: 11px; }
+      .live::before { width: 7px; height: 7px; border-radius: 50%; background: #4be08a; content: ""; }
+      .feature-title { position: relative; z-index: 1; margin: 24px 0 7px; font-size: 24px; line-height: 1.15; letter-spacing: -.025em; }
+      .feature-desc { position: relative; z-index: 1; max-width: 300px; margin-bottom: auto; color: #fff; font-size: 13px; }
+      .vs-art { position: relative; min-height: 92px; margin-top: 18px; }
+      .speech {
+        position: absolute;
+        padding: 8px 16px;
+        border-radius: 16px;
+        color: #151515;
+        font-size: 19px;
+        font-weight: 700;
+      }
+      .speech.yes { top: 0; left: 3%; transform: rotate(-5deg); background: var(--teal); border-bottom-left-radius: 3px; }
+      .speech.no { top: 34px; right: 2%; transform: rotate(5deg); background: var(--coral); border-bottom-right-radius: 3px; }
+      .vs-mark {
+        position: absolute;
+        top: 22px;
+        left: 50%;
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: var(--orange);
+        color: #111;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .feature-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; font-size: 12px; }
+      .arrow-link { font-weight: 700; }
+      .mfy-illustration {
+        display: grid;
+        min-height: 114px;
+        place-items: center;
+        margin: 16px 0 0;
+        border: 1px solid #ffffff22;
+        border-radius: 14px;
+        background: radial-gradient(circle at 75% 15%, #ffe9c855 0 38px, transparent 39px), linear-gradient(135deg, #f3a066, #c44b65 55%, #3b285b);
+        font-size: 52px;
+      }
+      .mfy-illustration span { filter: drop-shadow(0 4px 12px #28132588); }
+      .resource-panel, .panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+      }
+      .resource-panel { padding: 18px; }
+      .resource-list { display: grid; gap: 4px; margin-top: 12px; }
+      .resource-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #333;
+        color: #eee;
+        font-size: 14px;
+      }
+      .resource-row:last-child { border-bottom: 0; }
+      .resource-icon { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 50%; color: #151515; font-size: 16px; }
+      .resource-row small { display: block; color: var(--muted); font-size: 11px; }
+      .issue-list { display: grid; gap: 10px; }
+      .issue-button {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        text-align: left;
+        cursor: pointer;
+      }
+      .issue-button:hover { border-color: var(--orange); }
+      .issue-button b { display: block; }
+      .issue-button small { color: var(--muted); }
+      .issue-arrow { color: var(--orange); font-size: 20px; }
+      .side-column { display: flex; flex-direction: column; gap: 18px; }
+      .resource-panel h2 { margin-bottom: 0; font-size: 19px; }
+
+      .subpage { width: min(760px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 60px; }
+      .back-button { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; padding: 7px 0; border: 0; background: none; color: var(--orange); cursor: pointer; }
+      .back-button span { font-size: 20px; }
+      .poll-hero {
+        height: 172px;
+        margin: 20px 0;
+        overflow: hidden;
+        border: 1px solid #775266;
+        border-radius: 16px;
+        background:
+          radial-gradient(circle at 50% 45%, #f4814f 0 3px, transparent 4px),
+          linear-gradient(90deg, transparent 49.5%, #f4814f99 50%, transparent 50.5%),
+          radial-gradient(circle at 50% 50%, #32204b, #171327 55%, #111);
+        display: grid;
+        place-items: center;
+      }
+      .chip-art { display: grid; width: 88px; height: 88px; place-items: center; border: 2px solid var(--orange); border-radius: 18px; background: #151515; color: white; font-size: 38px; font-weight: 700; box-shadow: 0 0 42px #f4814f55; }
+      .poll-copy { padding: 0 2px; }
+      .poll-copy h1 { margin: 12px 0; font-size: clamp(25px, 5vw, 34px); }
+      .vote-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0 14px; }
+      .vote-button, .primary-button {
+        min-height: 52px;
+        border: 0;
+        border-radius: 12px;
+        color: #111;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter .16s ease, transform .16s ease;
+      }
+      .vote-button:hover, .primary-button:hover { filter: brightness(1.09); }
+      .vote-button:active, .primary-button:active { transform: scale(.99); }
+      .vote-button.yes { background: var(--teal); }
+      .vote-button.no { background: var(--coral); }
+      .locked-note, .fine { color: var(--muted); font-size: 12px; }
+      .locked-note { padding: 12px; border: 1px dashed #555; border-radius: 12px; text-align: center; }
+      .primary-button { width: 100%; padding: 13px 18px; background: var(--orange); }
+      .results-panel { margin: 18px 0; padding: 18px; }
+      .result-row { display: flex; justify-content: space-between; gap: 12px; margin: 12px 0 4px; font-size: 13px; }
+      .track { height: 9px; overflow: hidden; border-radius: 9px; background: #4b4b4b; }
+      .track span { display: block; height: 100%; border-radius: inherit; transition: width .65s ease; }
+      .comment { margin: 8px 0; padding: 11px 12px; border-radius: 10px; background: var(--card); font-size: 13px; }
+      .comment small { display: block; color: var(--muted); font-size: 11px; }
+      .comment.mine { border: 1px solid var(--orange); }
+      textarea {
+        display: block;
+        width: 100%;
+        min-height: 90px;
+        margin: 14px 0 10px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: var(--card);
+        color: var(--ink);
+      }
+      .inline-error { min-height: 20px; margin: 4px 0 8px; color: #ff9a91; font-size: 12px; }
+      .summary-card {
+        margin: 16px 0;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface);
+      }
+      .summary-card h2 { margin: 9px 0; font-size: 20px; }
+      .summary-card p { margin-bottom: 10px; color: #ddd; font-size: 14px; }
+      .read-list { display: grid; gap: 8px; margin: 8px 0 18px; }
+      .read-item { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); font-size: 13px; }
+      .tag { display: inline-block; border-radius: 99px; padding: 3px 10px; color: #111; font-size: 11px; font-weight: 700; }
+      .tag.yes { background: var(--teal); }
+      .tag.no { background: var(--coral); }
+      .choice-grid { display: grid; gap: 10px; margin: 18px 0; }
+      .choice-button {
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        text-align: left;
+        cursor: pointer;
+      }
+      .choice-button:hover { border-color: var(--orange); }
+
+      .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+      .category-button {
+        display: flex;
+        min-height: 138px;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        border: 0;
+        border-radius: 14px;
+        text-align: left;
+        cursor: pointer;
+        transition: transform .16s ease;
+      }
+      .category-button:hover { transform: translateY(-2px); }
+      .category-button b { font-size: 19px; }
+      .category-button small { margin-top: 3px; color: #ffffffeb; }
+      .category-button em { margin-top: auto; border-radius: 99px; padding: 3px 10px; background: #0005; font-size: 12px; font-style: normal; font-weight: 600; }
+      .category-button.wide { grid-column: 1 / -1; min-height: 100px; }
+      .read-card { margin: 12px 0; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+      .read-card h2 { margin: 12px 0 7px; font-size: 19px; }
+      .read-card p { color: #ddd; font-size: 13px; }
+      .source-line { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 11px; }
+      .read-card .why, .read-card .think { margin: 10px 0; padding: 10px 12px; border-radius: 9px; background: #383838; font-size: 12px; }
+      .read-card .think { background: #3a2a22; }
+      .read-card .why b, .read-card .think b { display: block; margin-bottom: 2px; color: var(--orange); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+      .article-reader { max-height: 66vh; overflow-y: auto; margin: 16px 0; padding: 22px; border-radius: 14px; background: #f8f6f1; color: #242424; }
+      .article-reader h2 { margin: 7px 0; color: #151515; }
+      .article-reader p { color: #333; font-size: 15px; line-height: 1.75; }
+      .article-reader small { color: #666; }
+      .progress { height: 4px; background: #494949; }
+      .progress span { display: block; width: 0; height: 100%; background: var(--orange); transition: width .15s; }
+      .reader-status { color: var(--muted); font-size: 12px; }
+      .dashboard { margin-top: 20px; padding: 16px; }
+      .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; text-align: center; }
+      .metric { padding: 9px 4px; border-radius: 10px; background: var(--card); color: var(--muted); font-size: 10px; }
+      .metric b { display: block; color: var(--orange); font-size: 18px; }
+
+      .modal-backdrop { position: fixed; inset: 0; z-index: 10; display: flex; align-items: end; justify-content: center; padding: 20px; background: #000a; }
+      .modal {
+        width: min(600px, 100%);
+        max-height: min(82vh, 760px);
+        overflow: auto;
+        padding: 22px;
+        border: 1px solid #454545;
+        border-radius: 20px 20px 12px 12px;
+        background: #1e1e1e;
+        box-shadow: 0 20px 70px #0009;
+      }
+      .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+      .modal-close { width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--card); cursor: pointer; font-size: 20px; }
+      .modal h2 { margin: 10px 0; font-size: 21px; }
+      .modal p { color: #ddd; font-size: 14px; }
+      .modal-actions { display: grid; gap: 8px; margin-top: 18px; }
+      .modal-actions .text-button { padding: 8px; }
+      .toast { position: fixed; right: 20px; bottom: 20px; z-index: 20; max-width: min(400px, calc(100vw - 40px)); padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: #292929; box-shadow: 0 8px 32px #0008; }
+      .toast[hidden] { display: none; }
+      .site-footer { padding: 18px 24px; border-top: 1px solid #292929; color: var(--muted); text-align: center; font-size: 11px; }
+
+      @media (max-width: 760px) {
+        .site-header { min-height: 64px; padding: 0 18px; }
+        .header-link { display: none; }
+        .page-wrap { width: min(100% - 32px, 620px); padding-top: 22px; }
+        .home-grid { grid-template-columns: 1fr; }
+        .side-column { display: grid; grid-template-columns: 1fr; }
+        .feature-card { min-height: 310px; padding: 16px; }
+        .feature-title { font-size: 21px; }
+        .subpage { width: calc(100% - 32px); padding-top: 20px; }
+        .poll-hero { height: 145px; }
+        .modal-backdrop { padding: 10px; }
+        .modal { max-height: 88vh; padding: 18px; }
+      }
+      @media (max-width: 440px) {
+        .brand-copy small { display: none; }
+        .feature-grid { grid-template-columns: 1fr; }
+        .feature-card { min-height: 290px; }
+        .vote-options { grid-template-columns: 1fr; }
+        .metrics { grid-template-columns: repeat(2, 1fr); }
+        .category-grid { grid-template-columns: 1fr 1fr; }
+        .category-button { min-height: 148px; padding: 12px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="NLB home" data-action="home">
+        <span class="brand-mark" aria-hidden="true">NLB</span>
+        <span class="brand-copy"><b>National Library Board</b><small>Read. Discover. Think.</small></span>
+      </a>
+      <nav class="header-actions" aria-label="Main navigation">
+        <button class="header-link" data-action="home">Home</button>
+        <button class="header-link" data-action="discover">Discover</button>
+        <button class="header-link" data-action="library">My Library</button>
+        <button class="profile" aria-label="Profile for John" data-action="profile">J</button>
+      </nav>
+    </header>
+    <main id="app" tabindex="-1"></main>
+    <footer class="site-footer">Demo experience · Sample content and illustrative poll figures · No account or backend required</footer>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <script>
+      (() => {
+        "use strict";
+
+        const articles = [
+          { source: "Local news", minutes: 4, title: "Are teens really “brain rotting”? Students respond", why: "Adults say short videos wreck focus, but students say they also learn and connect through them.", question: "When did you last finish something long without checking your phone?" },
+          { source: "Local news", minutes: 5, title: "Phone-free school hours: a trial in classrooms", why: "Trials report better attention in class, but critics say the rules ignore why teens scroll.", question: "Would you give up your phone for a school day? What would you miss?" },
+          { source: "Regional news", minutes: 4, title: "How Asian governments are trying to limit teen screen time", why: "Time limits can cut late-night use, but they are hard to enforce at home.", question: "Who should set the limit: government, school or family?" },
+          { source: "Global news", minutes: 6, title: "Age limits for social media: do they work?", why: "Supporters say limits protect wellbeing. Critics say teens find workarounds.", question: "What would make an age limit work in practice?" },
+          { source: "Opinion", minutes: 3, title: "My feed knows me better than my friends do", why: "Algorithms serve what holds attention, not what is good for us.", question: "How much of what you believe came from your feed?" },
+          { source: "Opinion", minutes: 3, title: "In defence of doomscrolling", why: "Scrolling keeps people informed and engaged in public life.", question: "Is scrolling the same as being informed?" },
+          { source: "NLB eBook", minutes: 8, title: "The Anxious Generation (eBook excerpt)", why: "Argues that a phone-based childhood has harmed young people’s mental health.", question: "What evidence would change your mind?" },
+          { source: "NLB eBook", minutes: 8, title: "The Shallows (eBook excerpt)", why: "Argues that constant online reading is changing how we focus and think deeply.", question: "Do you read differently on a screen than on paper?" }
+        ];
+        const categories = [
+          { name: "Singapore", desc: "What is happening close to home", color: "linear-gradient(150deg,#e0605a,#a82f4a)", ids: [0, 1] },
+          { name: "Asia", desc: "How the region is responding", color: "linear-gradient(150deg,#f4a55e,#c9582f)", ids: [2] },
+          { name: "Global", desc: "Debates and experiments worldwide", color: "linear-gradient(150deg,#3b8fd9,#2a4aa0)", ids: [3] },
+          { name: "Opinion", desc: "Voices that push back", color: "linear-gradient(150deg,#8a63d2,#4a2f8a)", ids: [4, 5] },
+          { name: "From NLB", desc: "Go deeper with eBooks from the library", color: "linear-gradient(150deg,#2fa37a,#145a5a)", ids: [6, 7] }
+        ];
+        const argumentsBySide = {
+          yes: {
+            label: "The other side says: Yes",
+            title: "Why AI in assignments can make students better learners",
+            paragraphs: [
+              "Students will use AI at university and at work, so schools can teach them to question, verify and credit it instead of pretending it does not exist.",
+              "A blanket ban is hard to enforce and pushes use out of sight. Open rules let teachers ask for prompts, drafts and reasoning, which tests thinking more than a final essay does.",
+              "AI can also give instant feedback to students who cannot afford tutors, narrowing gaps in support."
+            ],
+            reads: ["It’s Complicated: The Social Lives of Networked Teens (eBook)", "Article: Teaching with AI, not against it", "RTBS package: Future-ready learners"]
+          },
+          no: {
+            label: "The other side says: No",
+            title: "Why AI in assignments can weaken learning",
+            paragraphs: [
+              "Struggling with a draft is how students learn to organise ideas. If AI does that step, grades can rise while understanding stays flat.",
+              "Assignments are also how teachers see what a student knows. When AI writes the work, that signal is lost and honest students are disadvantaged.",
+              "Tools can be wrong or invent sources, and students who lack the skills to catch errors are the most likely to trust them."
+            ],
+            reads: ["The Shallows: What the Internet Is Doing to Our Brains (eBook)", "Article: When the essay is no longer evidence", "RTBS package: Thinking for yourself"]
+          }
+        };
+        const previousIssues = [
+          { issue: "Issue 4", title: "Should Singapore set a minimum age for social media?", month: "October 2026", yes: 54, no: 46, changed: 21 },
+          { issue: "Issue 3", title: "Should cash be phased out?", month: "September 2026", yes: 38, no: 62, changed: 19 },
+          { issue: "Issue 2", title: "Is working from home here to stay?", month: "August 2026", yes: 67, no: 33, changed: 17 },
+          { issue: "Issue 1", title: "Should schools adopt a four-day week?", month: "July 2026", yes: 41, no: 59, changed: 26 }
+        ];
+        const state = {
+          screen: "home",
+          noticeVisible: true,
+          vote: null,
+          secondChoice: null,
+          comments: [],
+          category: 0,
+          article: 0,
+          readArticles: new Set(),
+          readProgress: 0,
+          articleOpens: 0,
+          articleClicks: 0,
+          finishedReads: 0,
+          modalIssue: null,
+          modal: null
+        };
+        const app = document.getElementById("app");
+        const toast = document.getElementById("toast");
+        let toastTimer;
+
+        function escapeHtml(value) {
+          return String(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+          })[char]);
+        }
+
+        function setScreen(screen, extra = {}) {
+          Object.assign(state, extra, { screen });
+          render();
+          app.focus({ preventScroll: true });
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function showToast(message) {
+          toast.textContent = message;
+          toast.hidden = false;
+          window.clearTimeout(toastTimer);
+          toastTimer = window.setTimeout(() => { toast.hidden = true; }, 2800);
+        }
+
+        function progressFor(id) {
+          return state.readArticles.has(id) ? "✓ Read" : "Not read";
+        }
+
+        function homePage() {
+          return `
+            <div class="page-wrap">
+              <p class="eyebrow">Your library, your point of view</p>
+              <h1>Hi, John</h1>
+              <p class="lede">A little curiosity goes a long way. Find a new read, explore both sides, and decide for yourself.</p>
+              ${state.noticeVisible ? `
+                <aside class="notice" aria-label="Library notice">
+                  <span class="notice-icon" aria-hidden="true">📣</span>
+                  <div><b>Closure for upcoming public holidays</b><p>Our libraries and archives will be closed on Deepavali, 8 November. Beware of scam messages — officials will never ask for your banking details.</p></div>
+                  <button class="notice-close" aria-label="Dismiss notice" data-action="dismiss-notice">×</button>
+                </aside>` : ""}
+              <div class="home-grid">
+                <section class="home-main" aria-label="Featured for you">
+                  <div class="section-heading"><h2>Featured for you</h2><span class="fine">A fresh perspective awaits</span></div>
+                  <div class="feature-grid">
+                    <button class="feature-card poll-card" data-action="open-poll" aria-label="Open The Library That Disagrees With You">
+                      <div class="feature-topline"><span class="pill">November edition</span><span class="live">1,248 voting</span></div>
+                      <h3 class="feature-title">The Library That Disagrees With You</h3>
+                      <p class="feature-desc">Take a side, then read the strongest case against it.</p>
+                      <div class="vs-art" aria-hidden="true"><span class="speech yes">Yes</span><span class="vs-mark">VS</span><span class="speech no">No</span></div>
+                      <div class="feature-footer"><span>Results hidden until you vote</span><span class="arrow-link">Join this month’s poll →</span></div>
+                    </button>
+                    <button class="feature-card mfy-card" data-action="open-mfy" aria-label="Open Made for You">
+                      <div class="feature-topline"><span class="pill">Made for You</span><span class="live">New today</span></div>
+                      <h3 class="feature-title">Are you addicted to social media?</h3>
+                      <p class="feature-desc">Short reads, each with a question to think about.</p>
+                      <div class="mfy-illustration" aria-hidden="true"><span>📚</span></div>
+                      <div class="feature-footer"><span>AI-curated, checked by librarians</span><span class="arrow-link">Find out →</span></div>
+                    </button>
+                  </div>
+                  <div class="section-heading"><h2>Previous issues</h2><button class="text-button" data-action="all-issues">View all</button></div>
+                  <div class="issue-list">${previousIssues.slice(0, 3).map((issue, index) => `
+                    <button class="issue-button" data-action="past-issue" data-index="${index}">
+                      <span><b>${escapeHtml(issue.issue)} · ${escapeHtml(issue.title)}</b><small>${escapeHtml(issue.month)} · Read both sides</small></span><span class="issue-arrow" aria-hidden="true">›</span>
+                    </button>`).join("")}</div>
+                </section>
+                <aside class="side-column">
+                  <section class="resource-panel">
+                    <h2>Explore NLB</h2>
+                    <div class="resource-list">
+                      <div class="resource-row"><span class="resource-icon" style="background:#9be3b1">▤</span><span>eNewspapers &amp; eMagazines<small>News and magazines online</small></span></div>
+                      <div class="resource-row"><span class="resource-icon" style="background:#9be3b1">S</span><span>SPH Media Newspapers<small>Local and regional stories</small></span></div>
+                      <div class="resource-row"><span class="resource-icon" style="background:#3ddc84">▶</span><span>Blinkist<small>Ideas in a few minutes</small></span></div>
+                      <div class="resource-row"><span class="resource-icon" style="background:#222;color:white">K</span><span>Kanopy<small>Films and documentaries</small></span></div>
+                      <div class="resource-row"><span class="resource-icon" style="background:#ee7a85">✦</span><span>Programmes<small>Events at your library</small></span></div>
+                    </div>
+                  </section>
+                  <section class="resource-panel">
+                    <div class="section-heading" style="margin-top:0"><h2>My reading</h2><button class="text-button" data-action="library">Open →</button></div>
+                    <p class="fine" style="margin-bottom:0">${state.readArticles.size ? `${state.readArticles.size} article${state.readArticles.size === 1 ? "" : "s"} completed in this session.` : "Your reading history will appear here as you explore."}</p>
+                  </section>
+                </aside>
+              </div>
+            </div>`;
+        }
+
+        function pollPage() {
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="home"><span aria-hidden="true">‹</span> Home <span style="color:var(--muted);font-size:12px">/ Monthly special</span></button>
+              <div class="poll-hero" aria-hidden="true"><div class="chip-art">AI</div></div>
+              <div class="poll-copy">
+                <span class="pill">Monthly special · November</span>
+                <p class="lede" style="margin:14px 0 8px">Schools and universities are debating how far students should rely on AI tools, with some citing creativity and access and others worried about learning and fairness.</p>
+                <h1>Should AI be allowed in students’ assignments?</h1>
+                <p class="fine">Choose the view closest to yours. You’ll then get to read the strongest case for the other side.</p>
+                <div class="vote-options">
+                  <button class="vote-button yes" data-action="vote" data-vote="yes">YES</button>
+                  <button class="vote-button no" data-action="vote" data-vote="no">NO</button>
+                </div>
+                <div class="locked-note">🔒 Vote to unlock the other side’s argument, community results and comments.</div>
+                <p class="fine" style="margin-top:14px">Demo poll · Figures and participation counts are illustrative, not live results.</p>
+              </div>
+            </div>`;
+        }
+
+        function argumentModal() {
+          const side = state.vote === "yes" ? "no" : "yes";
+          const argument = argumentsBySide[side];
+          return `
+            <div class="modal-backdrop" data-action="close-modal">
+              <section class="modal" role="dialog" aria-modal="true" aria-labelledby="argument-title" data-stop-close>
+                <div class="modal-head"><span class="tag ${side}">${argument.label}</span><button class="modal-close" aria-label="Close dialog" data-action="close-modal">×</button></div>
+                <p class="fine">A one-minute read · Your vote stays private</p>
+                <h2 id="argument-title">${argument.title}</h2>
+                ${argument.paragraphs.map(paragraph => `<p>${paragraph}</p>`).join("")}
+                <h3 style="margin:18px 0 8px;font-size:14px">Recommended reads for this side</h3>
+                <div class="read-list">${argument.reads.map(read => `<div class="read-item">📖 &nbsp;${read}</div>`).join("")}</div>
+                <button class="primary-button" data-action="reconsider">Continue</button>
+              </section>
+            </div>`;
+        }
+
+        function reconsiderPage() {
+          const initial = state.vote.toUpperCase();
+          const opposite = state.vote === "yes" ? "NO" : "YES";
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="open-poll"><span aria-hidden="true">‹</span> Back to the poll</button>
+              <p class="eyebrow">You voted ${initial} and read the case for ${opposite}</p>
+              <h1>After reading, where do you stand now?</h1>
+              <p class="lede">There’s no right answer. Tell us how the other perspective changed your thinking.</p>
+              <div class="choice-grid">
+                <button class="choice-button" data-action="second-vote" data-choice="changed">↪ &nbsp; Changed my mind</button>
+                <button class="choice-button" data-action="second-vote" data-choice="kept">✓ &nbsp; Keeping my view</button>
+                <button class="choice-button" data-action="second-vote" data-choice="unsure">? &nbsp; Now unsure</button>
+              </div>
+              <div class="locked-note">🔒 Answer to unlock Singapore’s results and community comments.</div>
+            </div>`;
+        }
+
+        function issuesPage() {
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="home"><span aria-hidden="true">‹</span> Home</button>
+              <p class="eyebrow">Read both sides</p>
+              <h1>Previous issues</h1>
+              <p class="lede">Revisit past questions and see how readers responded after considering both sides.</p>
+              ${previousIssuesHtml()}
+            </div>`;
+        }
+
+        function resultsPage() {
+          const comments = state.vote === "yes"
+            ? ["“I had assumed a ban was safest, but showing drafts makes sense.”", "“Still yes, but marking has to change.”"]
+            : ["“I hadn’t considered how much it helps weaker students.”", "“Still no, enforcement is the real issue.”"];
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="home"><span aria-hidden="true">‹</span> Home <span style="color:var(--muted);font-size:12px">/ Poll results</span></button>
+              <p class="eyebrow">Thanks for considering both sides</p>
+              <h1 style="font-size:30px">Singapore results</h1>
+              <p class="lede">You voted ${state.vote.toUpperCase()}, then chose “${state.secondChoice}.” Results below are illustrative demo data.</p>
+              <section class="panel results-panel" aria-label="Poll results">
+                <div class="result-row"><span>Voted Yes, before → after reading</span><b>64% → 55%</b></div><div class="track"><span style="width:55%;background:var(--teal)"></span></div>
+                <div class="result-row"><span>Voted No, before → after reading</span><b>36% → 30%</b></div><div class="track"><span style="width:30%;background:var(--coral)"></span></div>
+                <div class="result-row"><span>Changed mind or now unsure</span><b>23%</b></div><div class="track"><span style="width:23%;background:var(--orange)"></span></div>
+              </section>
+              <section aria-labelledby="comments-title">
+                <h2 id="comments-title">Community comments</h2>
+                ${comments.map(comment => `<div class="comment">${comment}<small>Reader in Singapore</small></div>`).join("")}
+                ${state.comments.map(comment => `<div class="comment mine">${escapeHtml(comment)}<small>John · just now</small></div>`).join("")}
+                <form id="comment-form">
+                  <label for="comment-input">Add your perspective</label>
+                  <textarea id="comment-input" name="comment" maxlength="240" placeholder="Keep it thoughtful and respectful…" required></textarea>
+                  <p id="comment-error" class="inline-error" aria-live="polite"></p>
+                  <button class="primary-button" type="submit">Post comment</button>
+                </form>
+              </section>
+              <p class="fine" style="margin-top:18px">Figures are illustrative. This demo does not send comments or votes to a server.</p>
+              ${previousIssuesHtml()}
+            </div>`;
+        }
+
+        function previousIssuesHtml() {
+          return `<section style="margin-top:28px"><div class="section-heading"><h2>Previous issues</h2></div><div class="issue-list">${previousIssues.map((issue, index) => `
+            <button class="issue-button" data-action="past-issue" data-index="${index}">
+              <span><b>${escapeHtml(issue.issue)} · ${escapeHtml(issue.title)}</b><small>${escapeHtml(issue.month)}</small></span><span class="issue-arrow" aria-hidden="true">›</span>
+            </button>`).join("")}</div></section>`;
+        }
+
+        function madeForYouPage() {
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="home"><span aria-hidden="true">‹</span> Home <span style="color:var(--muted);font-size:12px">/ Made for You</span></button>
+              <p class="eyebrow">Today: Social media · AI-curated, checked by librarians</p>
+              <h1>Made for You</h1>
+              <p class="lede">Pick a lens. Each one has a short read and a question to think about.</p>
+              <div class="category-grid">${categories.map((category, index) => {
+                const readCount = category.ids.filter(id => state.readArticles.has(id)).length;
+                const wide = index === categories.length - 1 ? "wide" : "";
+                return `<button class="category-button ${wide}" style="background:${category.color}" data-action="open-category" data-index="${index}">
+                  <span class="pill" style="margin-bottom:8px">${readCount}/${category.ids.length} read</span><b>${category.name}</b><small>${category.desc}</small><em>Open category →</em>
+                </button>`;
+              }).join("")}</div>
+              <p class="fine" style="margin-top:18px">Sample content curated for this demo. Reading progress is kept only for this browser session.</p>
+            </div>`;
+        }
+
+        function categoryPage() {
+          const category = categories[state.category];
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="open-mfy"><span aria-hidden="true">‹</span> Made for You</button>
+              <p class="eyebrow">Today’s reading set</p><h1>${category.name}</h1><p class="lede">${category.desc}</p>
+              ${category.ids.map(id => {
+                const article = articles[id];
+                return `<article class="read-card">
+                  <div class="source-line"><span class="pill">${article.source}</span><span>${article.minutes} min · ${progressFor(id)}</span></div>
+                  <h2>${article.title}</h2>
+                  <div class="why"><b>Why it matters to you</b>${article.why}</div>
+                  <div class="think"><b>Think about</b>${article.question}</div>
+                  <button class="primary-button" data-action="open-article" data-index="${id}">${state.readArticles.has(id) ? "Read again" : "Read article"} ↗</button>
+                </article>`;
+              }).join("")}
+              <p class="fine">Written and curated by NLB librarians. Sample content for this demo.</p>
+            </div>`;
+        }
+
+        function articlePage() {
+          const article = articles[state.article];
+          const text = [
+            "Social media is built to hold our attention. Every scroll, like and notification is designed to bring us back for one more look.",
+            "Researchers say the effects are mixed. Some people report better connection and learning, while others describe shorter focus and more anxiety.",
+            "Part of the difficulty is that heavy use is hard to measure. Hours on a screen do not show what the time was spent on, or how it felt.",
+            "Educators are experimenting with new approaches, from phone-free hours to lessons on how feeds decide what we see.",
+            "Families are also finding their own rules, such as device-free dinners and agreed limits for the evening.",
+            "Critics warn that simple bans can miss the point, because young people often find ways around them. They argue that skills such as questioning sources matter just as much.",
+            "Whatever the answer, the debate shows why reading widely and slowly matters: it gives us room to weigh claims before we react."
+          ];
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="back-from-article"><span aria-hidden="true">‹</span> Back to ${categories[state.category].name}</button>
+              <div class="progress" aria-label="Reading progress"><span id="article-progress" style="width:${state.readProgress}%"></span></div>
+              <p class="eyebrow" style="margin-top:18px">${article.source} · ${article.minutes} min read · Sample text</p>
+              <div class="article-reader" id="article-reader" tabindex="0">
+                <small>nlb.gov.sg · Written by NLB</small>
+                <h2>${article.title}</h2>
+                <p><b>${article.why}</b></p>
+                ${text.map(paragraph => `<p>${paragraph}</p>`).join("")}
+                <h3>Pause and think</h3><p>${article.question}</p>
+              </div>
+              <p class="reader-status" id="reader-status" aria-live="polite">${state.readProgress >= 100 ? "✓ Finished. Added to your reading history." : `${Math.round(state.readProgress)}% read · Scroll to the end to finish`}</p>
+              <button class="primary-button" data-action="finish-article">${state.readArticles.has(state.article) ? "Back to reading list" : "Mark as read"}</button>
+            </div>`;
+        }
+
+        function libraryPage() {
+          return `
+            <div class="subpage">
+              <button class="back-button" data-action="home"><span aria-hidden="true">‹</span> Home</button>
+              <p class="eyebrow">A little progress adds up</p><h1>My reading</h1>
+              <p class="lede">${state.readArticles.size ? `You’ve finished ${state.readArticles.size} sample article${state.readArticles.size === 1 ? "" : "s"} in this session.` : "Articles you finish in Made for You will show up here."}</p>
+              ${state.readArticles.size ? [...state.readArticles].map(id => `<article class="read-card"><div class="source-line"><span class="pill">${articles[id].source}</span><span>✓ Read</span></div><h2>${articles[id].title}</h2><button class="text-button" data-action="open-article" data-index="${id}">Read again →</button></article>`).join("") : ""}
+              <section class="panel dashboard">
+                <b>Librarian dashboard (live demo)</b>
+                <div class="metrics">
+                  <div class="metric"><b>${state.articleOpens}</b>Section opens</div>
+                  <div class="metric"><b>${state.articleClicks}</b>Article clicks</div>
+                  <div class="metric"><b>${state.finishedReads}</b>Finished</div>
+                  <div class="metric"><b>${state.articleClicks ? Math.round(state.finishedReads / state.articleClicks * 100) : "–"}%</b>Completion</div>
+                </div>
+                <p class="fine" style="margin-bottom:0">Demo counters reset when the page is refreshed. No tracking data leaves this browser.</p>
+              </section>
+            </div>`;
+        }
+
+        function modalMarkup() {
+          if (state.modal === "past" && state.modalIssue !== null) {
+            const issue = previousIssues[state.modalIssue];
+            return `<div class="modal-backdrop" data-action="close-modal">
+              <section class="modal" role="dialog" aria-modal="true" aria-labelledby="past-title" data-stop-close>
+                <div class="modal-head"><span class="pill">Past edition · ${issue.month}</span><button class="modal-close" aria-label="Close dialog" data-action="close-modal">×</button></div>
+                <h2 id="past-title">${issue.title}</h2>
+                <div class="result-row"><span>Yes</span><b>${issue.yes}%</b></div><div class="track"><span style="width:${issue.yes}%;background:var(--teal)"></span></div>
+                <div class="result-row"><span>No</span><b>${issue.no}%</b></div><div class="track"><span style="width:${issue.no}%;background:var(--coral)"></span></div>
+                <p style="margin-top:14px">${issue.changed}% of readers changed their mind after reading the other side. Figures are illustrative.</p>
+                <button class="primary-button" data-action="close-modal">Close</button>
+              </section>
+            </div>`;
+          }
+          if (state.modal === "argument") return argumentModal();
+          if (state.modal === "thought") {
+            const article = articles[state.article];
+            return `<div class="modal-backdrop" data-action="close-modal"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="thought-title" data-stop-close>
+              <div class="modal-head"><span class="pill">Pause and think</span><button class="modal-close" aria-label="Close dialog" data-action="close-modal">×</button></div>
+              <h2 id="thought-title">${article.question}</h2><p>The article argued: ${article.why}</p>
+              <label for="thought-input">Jot down a thought (optional)</label><textarea id="thought-input" maxlength="300" placeholder="Your note stays in this browser session"></textarea>
+              <button class="primary-button" data-action="save-thought">Save my thought</button>
+            </section></div>`;
+          }
+          return "";
+        }
+
+        function render() {
+          const pages = {
+            home: homePage,
+            poll: pollPage,
+            reconsider: reconsiderPage,
+            results: resultsPage,
+            issues: issuesPage,
+            mfy: madeForYouPage,
+            category: categoryPage,
+            article: articlePage,
+            library: libraryPage,
+            discover: madeForYouPage
+          };
+          const page = (pages[state.screen] || homePage)();
+          app.innerHTML = `${page}${modalMarkup()}`;
+        }
+
+        function completeArticle() {
+          if (!state.readArticles.has(state.article)) {
+            state.readArticles.add(state.article);
+            state.finishedReads += 1;
+          }
+          state.readProgress = 100;
+          state.modal = "thought";
+          render();
+          const close = document.querySelector(".modal-close");
+          if (close) close.focus();
+        }
+
+        document.addEventListener("click", event => {
+          const control = event.target.closest("[data-action]");
+          if (!control) return;
+          const action = control.dataset.action;
+          const index = Number(control.dataset.index);
+
+          if (action === "home") { event.preventDefault(); setScreen("home"); }
+          else if (action === "dismiss-notice") { state.noticeVisible = false; render(); }
+          else if (action === "open-poll") { state.modal = null; setScreen("poll"); }
+          else if (action === "vote") { state.vote = control.dataset.vote; state.modal = "argument"; render(); document.querySelector(".modal-close")?.focus(); }
+          else if (action === "close-modal") { state.modal = null; state.modalIssue = null; render(); }
+          else if (action === "reconsider") { state.modal = null; setScreen("reconsider"); }
+          else if (action === "second-vote") { state.secondChoice = control.dataset.choice; state.modal = null; setScreen("results"); }
+          else if (action === "open-mfy" || action === "discover") { state.articleOpens += 1; state.modal = null; setScreen("mfy"); }
+          else if (action === "open-category") { state.category = index; setScreen("category"); }
+          else if (action === "open-article") {
+            state.article = index;
+            state.articleClicks += 1;
+            state.readProgress = 0;
+            setScreen("article");
+          }
+          else if (action === "back-from-article") { state.modal = null; setScreen("category"); }
+          else if (action === "finish-article") {
+            if (state.readArticles.has(state.article)) { state.modal = null; setScreen("category"); }
+            else completeArticle();
+          }
+          else if (action === "library") { setScreen("library"); }
+          else if (action === "profile") { showToast("Profile is a visual demo; sign-in is not connected."); }
+          else if (action === "past-issue") { state.modalIssue = index; state.modal = "past"; render(); document.querySelector(".modal-close")?.focus(); }
+          else if (action === "all-issues") { state.modal = null; setScreen("issues"); }
+          else if (action === "save-thought") {
+            const input = document.getElementById("thought-input");
+            if (input.value.trim()) showToast("Thought saved for this session.");
+            state.modal = null; setScreen("category");
+          }
+        });
+
+        app.addEventListener("submit", event => {
+          if (event.target.id !== "comment-form") return;
+          event.preventDefault();
+          const input = document.getElementById("comment-input");
+          const comment = input.value.trim();
+          if (!comment) {
+            document.getElementById("comment-error").textContent = "Please enter a comment before posting.";
+            input.focus();
+            return;
+          }
+          state.comments.push(comment);
+          render();
+          document.getElementById("comment-input")?.focus();
+          showToast("Comment added locally for this demo.");
+        });
+
+        app.addEventListener("scroll", event => {
+          if (state.screen !== "article" || event.target.id !== "article-reader") return;
+          const reader = event.target;
+          const range = reader.scrollHeight - reader.clientHeight;
+          state.readProgress = range > 0 ? Math.min(100, Math.round(reader.scrollTop / range * 100)) : 100;
+          const bar = document.getElementById("article-progress");
+          const status = document.getElementById("reader-status");
+          if (bar) bar.style.width = `${state.readProgress}%`;
+          if (status) status.textContent = state.readProgress >= 98 ? "At the end of the article · Mark as read to finish" : `${state.readProgress}% read · Scroll to the end to finish`;
+        }, true);
+
+        document.addEventListener("keydown", event => {
+          if (event.key === "Escape" && state.modal) {
+            state.modal = null;
+            state.modalIssue = null;
+            render();
+          }
+        });
+
+        render();
+      })();
+    </script>
+  </body>
+</html>
