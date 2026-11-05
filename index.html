@@ -560,14 +560,14 @@
         "use strict";
 
         const articles = [
-          { source: "By NLB", minutes: 4, title: "Are teens really “brain rotting”? Students respond", why: "Understanding how short videos shape your focus is important for young adults like you, who juggle studies, work and a phone.", question: "When did you last finish something long without checking your phone?" },
-          { source: "By NLB", minutes: 5, title: "Phone-free school hours: a trial in classrooms", why: "Testing phone-free time helps you see what your attention can do, which matters as you build study and work habits.", question: "Would you give up your phone for a school day? What would you miss?" },
-          { source: "By NLB", minutes: 4, title: "How Asian governments are trying to limit teen screen time", why: "Knowing how other countries handle screen time helps you judge your own habits and the rules you may face.", question: "Who should set the limit: government, school or family?" },
-          { source: "By NLB", minutes: 6, title: "Age limits for social media: do they work?", why: "Rules about age limits shape the online spaces you and your friends use every day.", question: "What would make an age limit work in practice?" },
-          { source: "By NLB", minutes: 3, title: "My feed knows me better than my friends do", why: "Knowing how your feed picks what you see is important for young adults like you, who get much of their news and opinions online.", question: "How much of what you believe came from your feed?" },
-          { source: "By NLB", minutes: 3, title: "In defence of doomscrolling", why: "Learning to tell scrolling from being informed helps you stay up to date without feeling overwhelmed.", question: "Is scrolling the same as being informed?" },
-          { source: "NLB eBook", minutes: 8, title: "The Anxious Generation (eBook excerpt)", why: "Argues that a phone-based childhood has harmed young people’s mental health.", question: "What evidence would change your mind?" },
-          { source: "NLB eBook", minutes: 8, title: "The Shallows (eBook excerpt)", why: "Argues that constant online reading is changing how we focus and think deeply.", question: "Do you read differently on a screen than on paper?" }
+          { source: "By NLB", title: "Are teens really “brain rotting”? Students respond", why: "Understanding how short videos shape your focus is important for young adults like you, who juggle studies, work and a phone.", question: "When did you last finish something long without checking your phone?" },
+          { source: "By NLB", title: "Phone-free school hours: a trial in classrooms", why: "Testing phone-free time helps you see what your attention can do, which matters as you build study and work habits.", question: "Would you give up your phone for a school day? What would you miss?" },
+          { source: "By NLB", title: "How Asian governments are trying to limit teen screen time", why: "Knowing how other countries handle screen time helps you judge your own habits and the rules you may face.", question: "Who should set the limit: government, school or family?" },
+          { source: "By NLB", title: "Age limits for social media: do they work?", why: "Rules about age limits shape the online spaces you and your friends use every day.", question: "What would make an age limit work in practice?" },
+          { source: "By NLB", title: "My feed knows me better than my friends do", why: "Knowing how your feed picks what you see is important for young adults like you, who get much of their news and opinions online.", question: "How much of what you believe came from your feed?" },
+          { source: "By NLB", title: "In defence of doomscrolling", why: "Learning to tell scrolling from being informed helps you stay up to date without feeling overwhelmed.", question: "Is scrolling the same as being informed?" },
+          { source: "NLB eBook", title: "The Anxious Generation (eBook excerpt)", why: "Argues that a phone-based childhood has harmed young people’s mental health.", question: "What evidence would change your mind?" },
+          { source: "NLB eBook", title: "The Shallows (eBook excerpt)", why: "Argues that constant online reading is changing how we focus and think deeply.", question: "Do you read differently on a screen than on paper?" }
         ];
         const categories = [
           { name: "Singapore", desc: "What is happening close to home", color: "linear-gradient(150deg,#e0605a,#a82f4a)", ids: [0, 1] },
@@ -739,7 +739,7 @@
             <div class="modal-backdrop" data-action="close-modal">
               <section class="modal" role="dialog" aria-modal="true" aria-labelledby="argument-title" data-stop-close>
                 <div class="modal-head"><span class="tag ${side}">${argument.label}</span><button class="modal-close" aria-label="Close dialog" data-action="close-modal">×</button></div>
-                <p class="fine">A one-minute read · Your vote stays private</p>
+                <p class="fine">Your vote stays private</p>
                 <h2 id="argument-title">${argument.title}</h2>
                 ${argument.paragraphs.map(paragraph => `<p>${paragraph}</p>`).join("")}
                 <h3 style="margin:18px 0 8px;font-size:14px">Recommended reads for this side</h3>
@@ -849,7 +849,7 @@
               ${category.ids.map(id => {
                 const article = articles[id];
                 return `<article class="read-card">
-                  <div class="source-line"><span class="pill">${article.source}</span><span>${article.minutes} min · ${progressFor(id)}</span></div>
+                  <div class="source-line"><span class="pill">${article.source}</span><span>${progressFor(id)}</span></div>
                   <h2>${article.title}</h2>
                   <div class="why"><b>Why it matters to you</b>${article.why}</div>
                   <div class="think"><b>Think about</b>${article.question}</div>
@@ -881,7 +881,7 @@
               <div class="article-content">
                 <span class="pill" style="background:var(--teal)">By NLB</span>
                 <h1 class="article-title">${article.title}</h1>
-                <p class="article-meta">Written by NLB · nlb.gov.sg · ${article.minutes} min read · sample text</p>
+                <p class="article-meta">Written by NLB · nlb.gov.sg · sample text</p>
                 <div class="article-hero-placeholder" role="img" aria-label="Article image placeholder"></div>
                 <div class="article-copy">
                   ${text.map(paragraph => `<p>${paragraph}</p>`).join("")}
